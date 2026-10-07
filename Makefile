@@ -1,6 +1,6 @@
 # Single entry point for humans, agents, and CI: `make verify`.
 
-.PHONY: help install fmt lint typos types test verify
+.PHONY: help install fmt lint typos types test docs docs-serve verify
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -26,4 +26,10 @@ types: ## Run mypy strict
 test: ## Run the test suite with coverage gate
 	uv run pytest -q
 
-verify: lint typos types test ## Lint, spell-check, types, and tests
+docs: ## Build the MkDocs site (strict)
+	DISABLE_MKDOCS_2_WARNING=true uv run mkdocs build --strict
+
+docs-serve: ## Serve the docs locally
+	DISABLE_MKDOCS_2_WARNING=true uv run mkdocs serve
+
+verify: lint typos types test ## Lint, typos, types, and tests (same order as CI)

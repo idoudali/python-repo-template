@@ -46,6 +46,15 @@ dev = [
     "pytest-cov>=7.1.0",
     "ruff>=0.16.10",
 ]
+docs = [
+    "mkdocs>=1.6.1",
+    "mkdocs-gen-files>=0.6.1",
+    "mkdocs-literate-nav>=0.6.3",
+    "mkdocs-material>=9.7.7",
+    "mkdocs-section-index>=0.3.12",
+    "mkdocs-typer2>=0.4.1",
+    "mkdocstrings[python]>=1.0.6",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/python_repo_template"]
@@ -79,6 +88,8 @@ ignore = [
 "tests/**" = ["D", "S101"]
 # Typer Option/Argument callbacks use bool flags by design.
 "src/python_repo_template/cli.py" = ["FBT001", "FBT002"]
+# MkDocs gen-files script is not a package.
+"docs/gen_ref_pages.py" = ["INP001"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"
