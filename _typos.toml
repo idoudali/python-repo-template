@@ -1,0 +1,9 @@
+[files]
+extend-exclude = [
+  "uv.lock",
+  "site/",
+  ".venv/",
+]
+
+[default.extend-words]
+# Add project-specific false positives here, one per line.
