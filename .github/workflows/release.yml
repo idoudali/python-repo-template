@@ -1,0 +1,120 @@
+name: Release
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: >-
+          Existing release tag (e.g. v0.2.0) to rebuild and re-upload assets
+          for. Leave empty for a normal release-please run.
+        type: string
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  release-please:
+    name: release-please
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+    outputs:
+      publish: ${{ steps.resolve.outputs.publish }}
+      tag_name: ${{ steps.resolve.outputs.tag_name }}
+    steps:
+      - id: release
+        if: inputs.tag == ''
+        uses: googleapis/release-please-action@v5.0.0
+        with:
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+      # release_created is only true on the run that creates the tag, so a
+      # re-run of a failed upload must name the tag explicitly.
+      - id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_TAG: ${{ inputs.tag }}
+          RELEASE_CREATED: ${{ steps.release.outputs.release_created }}
+          RELEASE_TAG: ${{ steps.release.outputs.tag_name }}
+        run: |
+          if [[ -n "$INPUT_TAG" ]]; then
+            gh release view "$INPUT_TAG" --repo "$GITHUB_REPOSITORY" >/dev/null
+            tag="$INPUT_TAG"
+          elif [[ "$RELEASE_CREATED" == "true" ]]; then
+            tag="$RELEASE_TAG"
+          else
+            tag=""
+          fi
+          {
+            echo "tag_name=$tag"
+            if [[ -n "$tag" ]]; then echo "publish=true"; else echo "publish=false"; fi
+          } >> "$GITHUB_OUTPUT"
+
+  package:
+    name: package
+    needs: release-please
+    if: needs.release-please.outputs.publish == 'true'
+    uses: $/.github/workflows/build.yml
+    with:
+      ref: ${{ needs.release-please.outputs.tag_name }}
+
+  binary:
+    name: binary
+    needs: release-please
+    if: needs.release-please.outputs.publish == 'true'
+    uses: $/.github/workflows/binary.yml
+    with:
+      ref: ${{ needs.release-please.outputs.tag_name }}
+
+  publish:
+    name: publish assets
+    needs: [release-please, package, binary]
+    if: needs.release-please.outputs.publish == 'true'
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write
+    steps:
+      - name: Download package distributions
+        uses: actions/download-artifact@v8.0.1
+        with:
+          name: python-package-distributions
+          path: artifacts
+      - name: Download binaries
+        uses: actions/download-artifact@v8.0.1
+        with:
+          pattern: binary-*
+          path: artifacts
+          merge-multiple: true
+      - name: Write SHA256SUMS
+        working-directory: artifacts
+        run: |
+          find . -type f ! -name SHA256SUMS -print0 \
+            | sort -z \
+            | xargs -0 sha256sum \
+            | tee SHA256SUMS
+      - id: attest
+        uses: actions/attest-build-provenance@v4.2.2
+        with:
+          subject-path: "artifacts/*"
+      - name: Copy attestation bundle into artifacts
+        env:
+          BUNDLE_PATH: ${{ steps.attest.outputs.bundle-path }}
+        run: cp "$BUNDLE_PATH" artifacts/
+      - name: Upload assets to the GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
+        run: |
+          gh release upload \
+            "$TAG_NAME" \
+            artifacts/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --clobber
