@@ -1,6 +1,6 @@
 # Single entry point for humans, agents, and CI: `make verify`.
 
-.PHONY: help install fmt lint types test verify
+.PHONY: help install fmt lint typos types test verify
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -17,10 +17,13 @@ lint: ## Check lint and format (no writes)
 	uv run ruff check .
 	uv run ruff format --check .
 
+typos: ## Spell-check with typos
+	uvx typos
+
 types: ## Run mypy strict
 	uv run mypy
 
 test: ## Run the test suite (wired in the tests PR)
 	@echo "pytest is not configured yet"; exit 1
 
-verify: lint types ## Lint and types (tests join verify in the next PR)
+verify: lint typos types ## Lint, spell-check, and types

@@ -66,6 +66,7 @@ ignore = [
   "D203",   # conflicts with D211 (Google)
   "D213",   # conflicts with D212 (Google)
   "COM812", # conflicts with the formatter
+  "COM819", # conflicts with the formatter
   "ISC001", # conflicts with the formatter
   "CPY001", # no per-file copyright header policy
 ]
