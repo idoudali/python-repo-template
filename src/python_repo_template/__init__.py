@@ -19,3 +19,8 @@ def __getattr__(name: str) -> object:
         return getattr(core, name)
     msg = f"module {__name__!r} has no attribute {name!r}"
     raise AttributeError(msg)
+
+
+def __dir__() -> list[str]:
+    """List lazy exports alongside module globals for ``dir()``."""
+    return sorted({*globals(), *__all__})

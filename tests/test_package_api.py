@@ -12,6 +12,10 @@ def test_lazy_reexports() -> None:
     assert set(info) == {"version", "python", "platform"}
 
 
+def test_lazy_exports_appear_in_dir() -> None:
+    assert {"greet", "runtime_info"} <= set(dir(pkg))
+
+
 def test_unknown_attribute_raises() -> None:
     missing = "not_a_real_export"
     with pytest.raises(AttributeError, match="no attribute"):
