@@ -23,7 +23,7 @@ typos: ## Spell-check with typos
 types: ## Run mypy strict
 	uv run mypy
 
-test: ## Run the test suite (wired in the tests PR)
-	@echo "pytest is not configured yet"; exit 1
+test: ## Run the test suite with coverage gate
+	uv run pytest -q
 
-verify: lint typos types ## Lint, spell-check, and types
+verify: lint typos types test ## Lint, spell-check, types, and tests
