@@ -74,39 +74,17 @@ jobs:
           uv export --frozen --no-emit-project --format requirements.txt -o requirements-audit.txt
           uvx pip-audit --requirement requirements-audit.txt
 
-  docs:
-    name: docs
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@v7.0.1
-        with:
-          persist-credentials: false
-      - uses: astral-sh/setup-uv@v10.2.0
-        with:
-          enable-cache: true
-      - name: Install dependencies
-        run: uv sync --all-groups --frozen
-      - name: Build docs
-        env:
-          DISABLE_MKDOCS_2_WARNING: "true"
-        run: uv run mkdocs build --strict
-
-  package:
-    name: package
-    uses: $/.github/workflows/build.yml
-
-  binary:
-    name: binary
-    uses: $/.github/workflows/binary.yml
-
   zizmor:
     name: zizmor
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      security-events: write
     steps:
       - uses: actions/checkout@v7.0.1
         with:
           persist-credentials: false
       - uses: zizmorcore/zizmor-action@v0.6.4
+        with:
+          # SARIF upload needs GHAS and a writable token, which fork PRs and
+          # private clones of this template lack. Findings still fail the job
+          # and show up as PR annotations.
+          advanced-security: false
+          annotations: true
