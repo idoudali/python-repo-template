@@ -1,6 +1,6 @@
 # Single entry point for humans, agents, and CI: `make verify`.
 
-.PHONY: help install fmt lint typos types test docs docs-serve build verify
+.PHONY: help install fmt lint typos types test docs docs-serve build binary verify
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -37,5 +37,8 @@ build: ## Build sdist and wheel, then check them
 	uv build
 	uv run twine check --strict dist/*.whl dist/*.tar.gz
 	uv run check-wheel-contents dist/*.whl
+
+binary: ## Build a platform-tagged one-file binary
+	uv run python scripts/build_binary.py
 
 verify: lint typos types test ## Lint, typos, types, and tests (same order as CI)

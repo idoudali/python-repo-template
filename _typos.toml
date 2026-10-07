@@ -3,7 +3,9 @@ extend-exclude = [
   "uv.lock",
   "site/",
   ".venv/",
+  "packaging/pyinstaller/",
 ]
 
 [default.extend-words]
-# Add project-specific false positives here, one per line.
+# PyInstaller Analysis/EXE API uses the plural "datas".
+datas = "datas"
