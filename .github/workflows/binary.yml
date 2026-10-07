@@ -43,6 +43,7 @@ jobs:
           chmod +x "$bin"
           "$bin" --version
           "$bin" --help
+          "$bin" greet Ada
       - name: Smoke-test binary (Windows)
         if: runner.os == 'Windows'
         shell: pwsh
@@ -52,6 +53,7 @@ jobs:
           $bin = Get-ChildItem dist/binaries/python-repo-template-*.exe | Select-Object -First 1
           & $bin.FullName --version
           & $bin.FullName --help
+          & $bin.FullName greet Ada
       - name: Upload binary
         uses: actions/upload-artifact@v7.0.1
         with:
