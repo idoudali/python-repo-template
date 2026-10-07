@@ -1,0 +1,24 @@
+---
+description: Google Python coding standard for this repo (Ruff-enforced)
+alwaysApply: true
+---
+
+# Python coding standard
+
+This repository follows the Google Python Style Guide and enforces it with Ruff.
+
+- 4-space indent; never tabs.
+- 80-character line length (`[tool.ruff] line-length = 80`).
+- `snake_case` functions and variables; `CamelCase` classes; `UPPER_SNAKE` module constants.
+- Google docstrings with `Args:`, `Returns:`, `Raises:` (`[tool.ruff.lint.pydocstyle] convention = "google"`).
+- Explicit imports only — never `from module import *`.
+- Type-hint public APIs. Use built-in generics (`list[str]`, `dict[str, int]`).
+- Prefer TypedDict / dataclass / NamedTuple / pydantic models over naked `dict[str, Any]` for structured data.
+- Prefer `Sequence` / `Mapping` ABCs at boundaries when appropriate.
+- Avoid `Any` on public APIs.
+- Use modern builtins (`list[str]`, `dict[str, int]`, `|` unions).
+- Do not add comments that restate the code. Do not reformat unrelated files.
+
+The machine-readable standard is `pyproject.toml`. If a style choice is not in Ruff config, do not invent one — match neighboring files.
+
+Before finishing Python work, follow `.cursor/rules/python-lint.mdc`.

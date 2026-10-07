@@ -1,0 +1,19 @@
+---
+description: Run Ruff and mypy the project way after Python edits
+globs: "**/*.py"
+alwaysApply: false
+---
+
+# Python lint loop
+
+After creating or editing Python files:
+
+1. `uv run ruff check --fix` on the touched paths (or `.` if many files).
+2. `uv run ruff format` on those paths.
+3. `uv run mypy` — scope comes from `files` in `[tool.mypy]`; do not pass a path.
+4. `uv run pytest` for tests that cover the change.
+5. If a command is missing, `uv add --dev ruff mypy pytest` — do not `pip install` globally.
+
+Treat Ruff/mypy output as the style authority. Do not disable rules with `# noqa` unless the user asks, and never widen `ignore` in `pyproject.toml` without saying so.
+
+If `uv` is not on PATH, say so and stop rather than falling back to a different formatter.

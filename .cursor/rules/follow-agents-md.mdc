@@ -1,0 +1,10 @@
+---
+description: Defer to AGENTS.md as the source of truth for this repo
+alwaysApply: true
+---
+
+# Follow AGENTS.md
+
+Read and follow `AGENTS.md` before changing code, adding dependencies, or
+running tools. Prefer `uv` and `make verify`. Do not invent a parallel
+workflow.
