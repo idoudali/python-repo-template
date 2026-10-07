@@ -1,0 +1,6 @@
+# Ignore until actionlint ships $/ self-repository uses: support
+# (rhysd/actionlint#732). GitHub already accepts the syntax.
+paths:
+  .github/workflows/**/*.{yml,yaml}:
+    ignore:
+      - 'reusable workflow call "\$/.+" at "uses" is not following the format'
