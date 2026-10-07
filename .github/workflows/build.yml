@@ -1,0 +1,38 @@
+name: Build
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: build package
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --all-groups --frozen
+      - name: Build sdist and wheel
+        run: uv build
+      - name: Check distributions
+        run: |
+          uv run twine check --strict dist/*.whl dist/*.tar.gz
+          uv run check-wheel-contents dist/*.whl
+      - name: Install wheel in a clean venv and smoke-test
+        run: |
+          uv venv /tmp/wheel-smoke
+          uv pip install --python /tmp/wheel-smoke dist/*.whl
+          /tmp/wheel-smoke/bin/python-repo-template --version
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: python-package-distributions
+          path: dist/
+          if-no-files-found: error
