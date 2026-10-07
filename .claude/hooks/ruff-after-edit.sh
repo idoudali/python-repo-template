@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Claude Code hook: format + lint Python with the project's own Ruff.
 #
-#   PostToolUse (Write|Edit)  -> formats the edited file, then exits 2 with any
-#                               remaining violations on stderr.
+#   PostToolUse (Write|Edit)  -> auto-fixes then formats the edited file, then
+#                               exits 2 with any remaining violations on stderr.
 #   Stop (--all-check)        -> repo-wide check; exits 2 to keep the turn going
 #                               until Ruff is clean.
 #
@@ -55,7 +55,11 @@ if [[ "${1:-}" == "--all-check" ]]; then
     exit 0
   fi
 
-  if out="$(uv run ruff check . 2>&1)" && fmt="$(uv run ruff format --check . 2>&1)"; then
+  lint_rc=0
+  fmt_rc=0
+  out="$(uv run ruff check . 2>&1)" || lint_rc=$?
+  fmt="$(uv run ruff format --check . 2>&1)" || fmt_rc=$?
+  if (( lint_rc == 0 && fmt_rc == 0 )); then
     exit 0
   fi
   {
@@ -78,9 +82,12 @@ case "${path:-}" in
 esac
 [[ -f "$path" ]] || exit 0
 
+# Same order as `make fmt`: fixes such as import sorting must run before the
+# formatter, or the file can still fail `ruff format --check`.
+uv run ruff check --fix --quiet "$path" >/dev/null 2>&1
 uv run ruff format "$path" >/dev/null 2>&1
 
-if remaining="$(uv run ruff check --fix "$path" 2>&1)"; then
+if remaining="$(uv run ruff check "$path" 2>&1)"; then
   exit 0
 fi
 
