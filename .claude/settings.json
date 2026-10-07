@@ -1,0 +1,31 @@
+{
+  "permissionMode": "default",
+  "env": {
+    "CLAUDE_CODE_PREVENT_AUTO_COMMIT": "1"
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/ruff-after-edit.sh",
+            "timeout": 60
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR\"/.claude/hooks/ruff-after-edit.sh --all-check",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}
