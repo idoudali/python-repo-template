@@ -1,0 +1,7 @@
+# Actions are pinned to readable release tags (e.g. @v7.0.1) and kept current
+# by Dependabot. Switch to "hash-pin" if you need SHA pinning.
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        "*": ref-pin
