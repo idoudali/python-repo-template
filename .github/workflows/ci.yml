@@ -95,6 +95,10 @@ jobs:
     name: package
     uses: $/.github/workflows/build.yml
 
+  binary:
+    name: binary
+    uses: $/.github/workflows/binary.yml
+
   zizmor:
     name: zizmor
     runs-on: ubuntu-24.04
