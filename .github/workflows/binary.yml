@@ -1,0 +1,54 @@
+name: Binary
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+
+jobs:
+  binary:
+    name: binary (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-24.04
+          - ubuntu-24.04-arm
+          - macos-15
+          - windows-latest
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --all-groups --frozen
+      - name: Build binary
+        run: uv run python scripts/build_binary.py
+      - name: Smoke-test binary (Unix)
+        if: runner.os != 'Windows'
+        shell: bash
+        run: |
+          bin="$(ls dist/binaries/python-repo-template-*)"
+          chmod +x "$bin"
+          "$bin" --version
+          "$bin" --help
+      - name: Smoke-test binary (Windows)
+        if: runner.os == 'Windows'
+        shell: pwsh
+        run: |
+          # Fail on any non-zero native exit code, not just the last one.
+          $PSNativeCommandUseErrorActionPreference = $true
+          $bin = Get-ChildItem dist/binaries/python-repo-template-*.exe | Select-Object -First 1
+          & $bin.FullName --version
+          & $bin.FullName --help
+      - name: Upload binary
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: binary-${{ matrix.os }}
+          path: dist/binaries/*
+          if-no-files-found: error
