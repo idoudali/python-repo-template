@@ -2,6 +2,11 @@ name: Build
 
 on:
   workflow_call:
+    inputs:
+      ref:
+        description: Git ref to build. Defaults to the triggering commit.
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -13,6 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v7.0.1
         with:
+          ref: ${{ inputs.ref }}
           persist-credentials: false
       - uses: astral-sh/setup-uv@v10.2.0
         with:

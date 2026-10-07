@@ -8,10 +8,24 @@ Releases are driven by [release-please](https://github.com/googleapis/release-pl
 2. On every push to `main`, the `release` workflow updates (or opens) a
    **Release PR** with the version bump and `CHANGELOG.md` section.
 3. Review and merge the Release PR.
-4. release-please creates the git tag and GitHub Release.
+4. release-please creates the git tag (`vX.Y.Z`) and GitHub Release.
 5. The same workflow builds the wheel, sdist, and platform binaries, writes
    `SHA256SUMS`, attaches build provenance attestations, and uploads the
    assets to the Release with `gh release upload`.
+
+## Re-publishing assets
+
+release-please only reports a new release on the run that creates the tag, so
+re-running a failed release workflow does not rebuild anything. To rebuild
+and re-upload the assets of an existing release, run the workflow by hand
+with the tag:
+
+```bash
+gh workflow run release.yml -f tag=v0.2.0
+```
+
+This skips release-please, builds from the tag, and replaces the assets
+(`gh release upload --clobber`).
 
 ## Bootstrap
 
