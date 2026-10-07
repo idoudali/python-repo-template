@@ -72,13 +72,16 @@ jobs:
         with:
           subject-path: "artifacts/*"
       - name: Copy attestation bundle into artifacts
-        run: cp "${{ steps.attest.outputs.bundle-path }}" artifacts/
+        env:
+          BUNDLE_PATH: ${{ steps.attest.outputs.bundle-path }}
+        run: cp "$BUNDLE_PATH" artifacts/
       - name: Upload assets to the GitHub Release
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ needs.release-please.outputs.tag_name }}
         run: |
           gh release upload \
-            "${{ needs.release-please.outputs.tag_name }}" \
+            "$TAG_NAME" \
             artifacts/* \
-            --repo "${{ github.repository }}" \
+            --repo "$GITHUB_REPOSITORY" \
             --clobber
