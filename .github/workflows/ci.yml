@@ -74,6 +74,23 @@ jobs:
           uv export --frozen --no-emit-project --format requirements.txt -o requirements-audit.txt
           uvx pip-audit --requirement requirements-audit.txt
 
+  docs:
+    name: docs
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v10.2.0
+        with:
+          enable-cache: true
+      - name: Install dependencies
+        run: uv sync --all-groups --frozen
+      - name: Build docs
+        env:
+          DISABLE_MKDOCS_2_WARNING: "true"
+        run: uv run mkdocs build --strict
+
   zizmor:
     name: zizmor
     runs-on: ubuntu-24.04
