@@ -39,12 +39,14 @@ python-repo-template = "python_repo_template.cli:app"
 
 [dependency-groups]
 dev = [
+    "check-wheel-contents>=0.6.3",
     "commitizen>=4.19.2",
     "mypy>=2.4.0",
     "pre-commit>=4.6.2",
     "pytest>=9.1.1",
     "pytest-cov>=7.1.0",
     "ruff>=0.16.10",
+    "twine>=7.0.0",
 ]
 docs = [
     "mkdocs>=1.6.1",
@@ -87,9 +89,16 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 "tests/**" = ["D", "S101"]
 # Typer Option/Argument callbacks use bool flags by design.
-"src/python_repo_template/cli.py" = ["FBT001", "FBT002"]
+# PLC0415: lazy imports keep --help/--version startup light.
+"src/python_repo_template/cli.py" = ["FBT001", "FBT002", "PLC0415"]
+# Lazy re-exports keep core out of the package import graph.
+"src/python_repo_template/__init__.py" = ["PLC0415"]
+
 # MkDocs gen-files script is not a package.
 "docs/gen_ref_pages.py" = ["INP001"]
+# Build helpers are standalone scripts.
+"scripts/**" = ["INP001", "T201"]
+"packaging/**" = ["INP001"]
 
 [tool.ruff.lint.pydocstyle]
 convention = "google"

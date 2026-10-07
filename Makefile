@@ -1,6 +1,6 @@
 # Single entry point for humans, agents, and CI: `make verify`.
 
-.PHONY: help install fmt lint typos types test docs docs-serve verify
+.PHONY: help install fmt lint typos types test docs docs-serve build verify
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## ' $(MAKEFILE_LIST) | \
@@ -31,5 +31,11 @@ docs: ## Build the MkDocs site (strict)
 
 docs-serve: ## Serve the docs locally
 	DISABLE_MKDOCS_2_WARNING=true uv run mkdocs serve
+
+build: ## Build sdist and wheel, then check them
+	rm -rf dist/python_repo_template-* dist/*.whl dist/*.tar.gz
+	uv build
+	uv run twine check --strict dist/*.whl dist/*.tar.gz
+	uv run check-wheel-contents dist/*.whl
 
 verify: lint typos types test ## Lint, typos, types, and tests (same order as CI)

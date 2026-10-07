@@ -91,6 +91,10 @@ jobs:
           DISABLE_MKDOCS_2_WARNING: "true"
         run: uv run mkdocs build --strict
 
+  package:
+    name: package
+    uses: $/.github/workflows/build.yml
+
   zizmor:
     name: zizmor
     runs-on: ubuntu-24.04
