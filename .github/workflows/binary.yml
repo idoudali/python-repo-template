@@ -55,7 +55,7 @@ jobs:
           & $bin.FullName --help
           & $bin.FullName greet Ada
       - name: Upload binary
-        uses: actions/upload-artifact@v7.0.1
+        uses: actions/upload-artifact@v7.0.2
         with:
           name: binary-${{ matrix.os }}
           path: dist/binaries/*
